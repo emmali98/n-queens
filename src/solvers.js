@@ -13,48 +13,81 @@
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 
-/*
-Make a decision tree
-Each node has a value, which is the matrix
-For each potential child, check if it has any conflicts before adding
-Recursively add children by toggling on spaces in latter half of matrix
-Grab all the children at the bottom
-*/
 window._Tree = function(arr) {
   this.board = arr;
   this.children = [];
 };
 
 window._solutionHelper = function(n, isQueens) {
-  // make top of the tree
-  var solutionTree = new window._Tree(new Array(n * n).fill(0));
-  // check isQueens to determine if we check diagonals too
+  var empty = [];
+  for (var i = 0; i < n * n; i++) {
+    empty.push(0);
+  }
+
   var addChildren = function(tree) {
     // looks at tree.board and searches for indexOf the last occurring 1
     var idx = tree.board.lastIndexOf(1) === -1 ? 0 : (tree.board.lastIndexOf(1) + 1);
-    // if idx is n^2 - 1, return tree
-    if (idx === (n * n - 1)) {
+    if (n === 1) {
+      tree.board[0] = 1;
+      return tree;
+    } else if (idx === (n * n - 1)) {
       return tree;
     } else {
-      // for loop (i = idx; i < n^2; i++)
-      //   childBoard = tree.board.slice(), childBoard[i] changed from 0 to 1
-      //   check childBoard for conflicts, change back to matrix for checks, then re-flatten
-      //   childBoard = addChildren(childBoard);
-      //   tree.children.push(childBoard);
+      for (var i = idx; i < n * n; i++) {
+        //   childBoard = tree.board.slice(), childBoard[i] changed from 0 to 1
+        var childBoard = tree.board.slice();
+        childBoard[i] = 1;
+        //   check childBoard for conflicts, change back to matrix for checks
+        childBoard = new Board(window.arrayToMatrix(childBoard, n));
 
-      // generate n^2-(n-1) new matrices that have one place toggled on
-      // check these matrices, then add to tree.children
-      // call addChildren to each of tree.children
+        if (isQueens && !childBoard.hasAnyQueensConflicts()) {
+          var childTree = new window._Tree(childBoard.rows().flat());
+          childTree = addChildren(childTree);
+          tree.children.push(childTree);
+        } else if (!isQueens && !childBoard.hasAnyRooksConflicts()) {
+          var childTree = new window._Tree(childBoard.rows().flat());
+          childTree = addChildren(childTree);
+          tree.children.push(childTree);
+        }
+      }
+      return tree;
     }
-
   };
-  solutionTree = addChildren(solutionTree);
-  // var solutions = do something to solutionTree to grab bottom children with n pieces (need to check)
-  return solutionTree;
+
+  var solutionTree = addChildren(new window._Tree(empty));
+  var grabChildren = function(tree) {
+    var validChildren = [];
+    if (tree.children.length > 0) {
+      for (var i = 0; i < tree.children.length; i++) {
+        validChildren = validChildren.concat(grabChildren(tree.children[i]));
+      }
+    } else {
+      var sum = tree.board.reduce((acc, currentVal) => acc + currentVal, 0);
+      if (sum === n) {
+        validChildren.push(tree.board);
+      }
+    }
+    return validChildren;
+  };
+  //   return grabChildren(solutionTree);
+  var solutions = _.map(grabChildren(solutionTree), function(val) {
+    return window.arrayToMatrix(val, n);
+  });
+
+  return solutions;
+};
+
+window.arrayToMatrix = function(arr, n) {
+  var array = arr.slice();
+  var matrix = [];
+  for (var i = 0; i < n * n; i = i + n) {
+    matrix.push(array.splice(0, n));
+  }
+  return matrix;
 };
 
 window.findNRooksSolution = function(n) {
-  var solution = _solutionHelper(n, false); // correct syntax?
+  var solution = 0; //window._solutionHelper(n, false)[0];
 
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
@@ -62,7 +95,7 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  var solutionCount = 0;//window._solutionHelper(n, false).length;
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
