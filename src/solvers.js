@@ -13,10 +13,22 @@
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 
+/*
+Make a decision tree
+Each node has a value, which is the matrix
+For each potential child, check if it has any conflicts before adding
+Recursively add children by toggling on spaces in latter half of matrix
+Grab all the children at the bottom
+*/
+window._Tree = function() { };
 
+window._solutionHelper = function(n, isQueens) {
+  // check isQueens to determine if we check diagonals too
+  return solutions;
+};
 
 window.findNRooksSolution = function(n) {
-  var solution = undefined; //fixme
+  var solution = _solutionHelper(n, false); // correct syntax?
 
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;

@@ -62,7 +62,7 @@
     },
 
 
-/*
+    /*
          _             _     _
      ___| |_ __ _ _ __| |_  | |__   ___ _ __ ___ _
     / __| __/ _` | '__| __| | '_ \ / _ \ '__/ _ (_)
@@ -79,12 +79,23 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+      var row = this.get(rowIndex);
+      var sum = row.reduce((acc, currentValue) => acc + currentValue, 0);
+      if (sum > 1) {
+        return true;
+      } else {
+        return false;
+      }
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      return false; // fixme
+      for (var i = 0; i < this.rows().length; i++) {
+        if (this.hasRowConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
     },
 
 
@@ -94,12 +105,26 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      return false; // fixme
+      var colArray = [];
+      for (var i = 0; i < this.rows().length; i++) {
+        colArray.push(this.get(i)[colIndex]);
+      }
+      var sum = colArray.reduce((acc, currentValue) => acc + currentValue, 0);
+      if (sum > 1) {
+        return true;
+      } else {
+        return false;
+      }
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      return false; // fixme
+      for (var i = 0; i < this.rows().length; i++) {
+        if (this.hasColConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
     },
 
 
@@ -109,12 +134,42 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      majorDiagonalColumnIndexAtFirstRow = Math.abs(majorDiagonalColumnIndexAtFirstRow);
+      var diagonalArray1 = [];
+      var rowIdx = 0;
+      var colIdx = majorDiagonalColumnIndexAtFirstRow;
+      for (var i = 0; i < this.rows().length - majorDiagonalColumnIndexAtFirstRow; i++) {
+        diagonalArray1.push(this.get(rowIdx)[colIdx]);
+        rowIdx++;
+        colIdx++;
+      }
+
+      var diagonalArray2 = [];
+      var rowIdx = majorDiagonalColumnIndexAtFirstRow;
+      var colIdx = 0;
+      for (var i = 0; i < this.rows().length - majorDiagonalColumnIndexAtFirstRow; i++) {
+        diagonalArray2.push(this.get(rowIdx)[colIdx]);
+        rowIdx++;
+        colIdx++;
+      }
+
+      var sum1 = diagonalArray1.reduce((acc, currentValue) => acc + currentValue, 0);
+      var sum2 = diagonalArray2.reduce((acc, currentValue) => acc + currentValue, 0);
+      if (sum1 > 1 || sum2 > 1) {
+        return true;
+      } else {
+        return false;
+      }
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      return false; // fixme
+      for (var i = 0; i < this.rows().length; i++) {
+        if (this.hasMajorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
     },
 
 
@@ -124,13 +179,46 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
+      if (minorDiagonalColumnIndexAtFirstRow >= this.rows().length) {
+        minorDiagonalColumnIndexAtFirstRow = 2 * (this.rows().length - 1) - minorDiagonalColumnIndexAtFirstRow;
+      }
+      var diagonalArray1 = [];
+      var rowIdx = 0;
+      var colIdx = minorDiagonalColumnIndexAtFirstRow;
+      for (var i = 0; i < minorDiagonalColumnIndexAtFirstRow + 1; i++) {
+        diagonalArray1.push(this.get(rowIdx)[colIdx]);
+        rowIdx++;
+        colIdx--;
+      }
+
+      var diagonalArray2 = [];
+      var rowIdx = this.rows().length - minorDiagonalColumnIndexAtFirstRow - 1;
+      var colIdx = this.rows().length - 1;
+      for (var i = 0; i < minorDiagonalColumnIndexAtFirstRow + 1; i++) {
+        diagonalArray2.push(this.get(rowIdx)[colIdx]);
+        rowIdx++;
+        colIdx--;
+      }
+
+      var sum1 = diagonalArray1.reduce((acc, currentValue) => acc + currentValue, 0);
+      var sum2 = diagonalArray2.reduce((acc, currentValue) => acc + currentValue, 0);
+      if (sum1 > 1 || sum2 > 1) {
+        return true;
+      } else {
+        return false;
+      }
       return false; // fixme
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      return false; // fixme
-    }
+      for (var i = 0; i < this.rows().length; i++) {
+        if (this.hasMinorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
+    },
 
     /*--------------------  End of Helper Functions  ---------------------*/
 
